@@ -38,10 +38,8 @@ def qubes_hcl_scraper():
         cell_values = [cell.text.strip() for cell in cells]
 
         # Check if all features are marked "yes" or "Yes" for the latest Qubes version
-        if cell_values[2].lower() == "yes" and all(value.lower() == "yes" for value in cell_values[4:8]):
+        if cell_values[3].lower() == "yes" and all(value.lower() == "yes" for value in cell_values[4:8]):
             compatible_laptops.append(cell_values)
-
-    print(compatible_laptops)  # Print the laptops list to the console
 
     return render_template('index.html', headers=headers, laptops=compatible_laptops)
 
@@ -52,7 +50,7 @@ EOL
 
 # Create an index.html file
 mkdir templates
-sudo bash -c 'cat > templates/index.html << EOL
+cat > templates/index.html << EOL
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,7 +83,7 @@ sudo bash -c 'cat > templates/index.html << EOL
     </table>
 </body>
 </html>
-EOL'
+EOL
 
 # Create a systemd service file
 sudo bash -c 'cat > /etc/systemd/system/qubes_hcl_scraper.service << EOL
