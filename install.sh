@@ -35,8 +35,8 @@ rows = table.find_all('tr')
 filtered_rows = []
 
 for row in rows:
-    row_data = row.find_all('td', class_='success text-center')
-    if len(row_data) >= 7:  # Adjusted to 7 instead of 8, to exclude BIOS column
+    row_data = row.find_all('td', class_='success')
+    if len(row_data) >= 6:  # Adjusted to 6, to exclude BIOS column
         filtered_rows.append(row)
 
 header = rows[0]
@@ -61,7 +61,7 @@ def index():
 <body>
 <div class="container">
     <h1>Qubes Hardware Compatibility List</h1>
-    <p>Showing only laptops with "yes" marked in HVM, IOMMU, SLAT, TPM, Qubes, Xen, and Kernel columns.</p>
+    <p>Showing only laptops with "success" marked in HVM, IOMMU, SLAT, TPM, Qubes, Xen, and Kernel columns.</p>
     {{ new_table | safe }}
 </div>
 </body>
