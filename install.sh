@@ -26,7 +26,7 @@ def qubes_hcl_scraper():
     url = 'https://www.qubes-os.org/hcl/'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
-    table = soup.find('table', {'class': 'sortable'})
+    table = soup.find('table', {'class': 'table table-hover table-bordered table-responsive sortable'})
 
     headers = [header.text.strip() for header in table.findAll('th')]
     rows = table.findAll('tr')[1:]  # Skip the header row
@@ -38,7 +38,7 @@ def qubes_hcl_scraper():
         cell_values = [cell.text.strip() for cell in cells]
 
         # Check if all features are marked "yes" or "Yes" for the latest Qubes version
-        if cell_values[3].lower() == "yes" and all(value.lower() == "yes" for value in cell_values[5:9]):
+        if cell_values[2].lower() == "yes" and all(value.lower() == "yes" for value in cell_values[4:8]):
             compatible_laptops.append(cell_values)
 
     return render_template('index.html', headers=headers, laptops=compatible_laptops)
