@@ -28,7 +28,7 @@ url = 'https://www.qubes-os.org/hcl/'
 html_content = requests.get(url).content
 soup = BeautifulSoup(html_content, 'html.parser')
 
-table = soup.find_all('table')[0]
+table = soup.find('table', class_='table table-hover table-bordered table-responsive sortable more-bottom')
 
 rows = table.find_all('tr')
 
