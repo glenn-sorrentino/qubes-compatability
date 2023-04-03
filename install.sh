@@ -79,8 +79,8 @@ server {
 
     location / {
         proxy_pass http://0.0.0.0:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
 EOL'
