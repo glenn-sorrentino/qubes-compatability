@@ -74,6 +74,10 @@ sudo bash -c 'cat > templates/index.html << EOL
                         <td>{{ cell }}</td>
                     {% endfor %}
                 </tr>
+            {% else %}
+                <tr>
+                    <td colspan="{{ headers|length }}">No compatible laptops found</td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
