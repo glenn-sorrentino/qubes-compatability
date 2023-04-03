@@ -71,7 +71,6 @@ sudo systemctl enable qubes_hcl_scraper
 sudo systemctl start qubes_hcl_scraper
 
 # Configure Nginx
-sudo rm /etc/nginx/sites-enabled/default
 sudo bash -c 'cat > /etc/nginx/sites-available/qubes_hcl_scraper << EOL
 server {
     listen 80;
