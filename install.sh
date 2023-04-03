@@ -49,6 +49,38 @@ if __name__ == '__main__':
 
 EOL
 
+# Create an index.html file
+sudo bash -c 'cat > index.html << EOL
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qubes HCL Scraper</title>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                {% for header in headers %}
+                    <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for laptop in laptops %}
+                <tr>
+                    {% for cell in laptop %}
+                        <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+EOL
+
 # Create a systemd service file
 sudo bash -c 'cat > /etc/systemd/system/qubes_hcl_scraper.service << EOL
 [Unit]
