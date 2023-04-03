@@ -26,6 +26,7 @@ def qubes_hcl_scraper():
     url = 'https://www.qubes-os.org/hcl/'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
+    print(soup.prettify())
     table = soup.find('table', {'class': 'table table-hover table-bordered table-responsive sortable'})
 
     headers = [header.text.strip() for header in table.findAll('th')]
