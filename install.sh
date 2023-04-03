@@ -15,9 +15,9 @@ pip install beautifulsoup4 requests gunicorn Flask
 
 # Create the Flask application file
 cat > app.py << EOL
-from flask import Flask, render_template_string
-import requests
+from flask import Flask, render_template
 from bs4 import BeautifulSoup
+import requests
 
 app = Flask(__name__)
 
@@ -25,27 +25,28 @@ app = Flask(__name__)
 def qubes_hcl_scraper():
     url = 'https://www.qubes-os.org/hcl/'
     response = requests.get(url)
-    response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
-    table = soup.find('table', {'class': 'compatibility'})
+    table = soup.find('table', {'class': 'sortable'})
+
     headers = [header.text.strip() for header in table.findAll('th')]
-    rows = table.findAll('tr')[1:]
+    rows = table.findAll('tr')[1:]  # Skip the header row
+
     compatible_laptops = []
 
     for row in rows:
         cells = row.findAll('td')
-        laptop_data = {headers[i]: cell.text.strip() for i, cell in enumerate(cells)}
-        if all(value.lower() == 'yes' for value in laptop_data.values()):
-            compatible_laptops.append(laptop_data)
+        cell_values = [cell.text.strip() for cell in cells]
 
-    # Render the results as an HTML table
-    table_headers = ''.join(f'<th>{header}</th>' for header in headers)
-    table_rows = ''.join(f'<tr>{" ".join(f"<td>{row_data[key]}</td>" for key in headers)}</tr>' for row_data in compatible_laptops)
-    html = f'<table><thead><tr>{table_headers}</tr></thead><tbody>{table_rows}</tbody></table>'
-    return render_template_string(html)
+        # Check if all features are marked "yes"
+        if all(value.lower() == "yes" for value in cell_values[3:]):  # Skip the first 3 columns (vendor, model, and type)
+            compatible_laptops.append(cell_values[:3])
+
+    return render_template('index.html', headers=headers[:3], laptops=compatible_laptops)
+
 
 if __name__ == '__main__':
     app.run()
+
 EOL
 
 # Create a systemd service file
