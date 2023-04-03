@@ -26,8 +26,7 @@ def qubes_hcl_scraper():
     url = 'https://www.qubes-os.org/hcl/'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
-    print(soup.prettify())
-    table = soup.find('table', {'class': 'table table-hover table-bordered table-responsive sortable'})
+    table = soup.find('table', {'class': 'table table-striped'})
 
     headers = [header.text.strip() for header in table.findAll('th')]
     rows = table.findAll('tr')[1:]  # Skip the header row
@@ -39,7 +38,7 @@ def qubes_hcl_scraper():
         cell_values = [cell.text.strip() for cell in cells]
 
         # Check if all features are marked "yes" or "Yes" for the latest Qubes version
-        if cell_values[2].lower() == "yes" and all(value.lower() == "yes" for value in cell_values[4:8]):
+        if cell_values[1].lower() == "yes" and all(value.lower() == "yes" for value in cell_values[3:7]):
             compatible_laptops.append(cell_values)
 
     return render_template('index.html', headers=headers, laptops=compatible_laptops)
@@ -73,10 +72,10 @@ cat > templates/index.html << EOL
                 <tr>
                     <td>{{ laptop[0] }}</td>
                     <td>{{ laptop[1] }}</td>
+                    <td>{{ laptop[2] }}</td>
                     <td>{{ laptop[3] }}</td>
+                    <td>{{ laptop[4] }}</td>
                     <td>{{ laptop[5] }}</td>
-                    <td>{{ laptop[6] }}</td>
-                    <td>{{ laptop[7] }}</td>
                 </tr>
             {% else %}
                 <tr>
@@ -107,22 +106,4 @@ WantedBy=multi-user.target
 EOL'
 
 # Enable and start the service
-sudo systemctl daemon-reload
-sudo systemctl enable qubes_hcl_scraper
-sudo systemctl start qubes_hcl_scraper
-
-# Configure Nginx
-sudo bash -c 'cat > /etc/nginx/sites-available/qubes_hcl_scraper << EOL
-server {
-    listen 80;
-    server_name localhost;
-
-    location / {
-        proxy_pass http://0.0.0.0:8000;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-    }
-}
-EOL'
-sudo ln -s /etc/nginx/sites-available/qubes_hcl_scraper /etc/nginx/sites-enabled/
-sudo systemctl restart nginx
+sudo systemctl
