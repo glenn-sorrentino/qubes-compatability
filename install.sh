@@ -30,16 +30,16 @@ soup = BeautifulSoup(html_content, 'html.parser')
 
 table = soup.find('table', class_='table table-hover table-bordered table-responsive sortable more-bottom')
 
-rows = table.find_all('tr')
+rows = table.find_all('tr')[1:]
 
 filtered_rows = []
 
 for row in rows:
     row_data = row.find_all('td', class_='success')
-    if len(row_data) >= 6:  # Adjusted to 6, to exclude BIOS column
+    if len(row_data) == 7:
         filtered_rows.append(row)
 
-header = rows[0]
+header = table.find('tr')
 header.name = 'thead'
 
 new_table = soup.new_tag('table', **{'class': 'table table-hover table-bordered table-responsive'})
