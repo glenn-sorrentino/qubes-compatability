@@ -51,7 +51,7 @@ EOL
 
 # Create an index.html file
 mkdir templates
-sudo bash -c 'cat > index.html << EOL
+sudo bash -c 'cat > templates/index.html << EOL
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,7 +80,7 @@ sudo bash -c 'cat > index.html << EOL
     </table>
 </body>
 </html>
-EOL
+EOL'
 
 # Create a systemd service file
 sudo bash -c 'cat > /etc/systemd/system/qubes_hcl_scraper.service << EOL
