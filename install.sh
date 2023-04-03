@@ -1,109 +1,47 @@
 #!/bin/bash
 
-# Update package lists and install required packages
-sudo apt update && sudo apt -y dist-upgrade
-sudo apt install -y python3 python3-pip python3-venv nginx
+# Update packages
+sudo apt-get update
 
-# Create a virtual environment
-python3 -m venv venv
+# Install Python 3 and pip
+sudo apt-get install -y python3 python3-pip
 
-# Activate the virtual environment
+# Install virtualenv
+pip3 install virtualenv
+
+# Create and activate the virtual environment
+virtualenv venv
 source venv/bin/activate
 
-# Install required Python libraries
-pip install beautifulsoup4 requests gunicorn Flask
+# Install Flask, Beautiful Soup, and Requests
+pip install Flask beautifulsoup4 requests gunicorn
 
-# Create the Flask application file
-cat > app.py << EOL
-from flask import Flask, render_template
-from bs4 import BeautifulSoup
-import requests
+# Install Nginx
+sudo apt-get install -y nginx
 
-app = Flask(__name__)
+# Create Nginx configuration
+sudo bash -c 'cat > /etc/nginx/sites-available/qubes_hcl << EOL
+server {
+    listen 80;
+    server_name localhost;
 
-@app.route('/')
-def qubes_hcl_scraper():
-    url = 'https://www.qubes-os.org/hcl/'
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    table = soup.find('table', {'class': 'table table-striped'})
-
-    headers = [header.text.strip() for header in table.findAll('th')]
-    rows = table.findAll('tr')[1:]  # Skip the header row
-
-    compatible_laptops = []
-
-    for row in rows:
-        cells = row.findAll('td')
-        cell_values = [cell.text.strip() for cell in cells]
-
-        # Check if all features are marked "yes" or "Yes" for the latest Qubes version
-        if cell_values[1].lower() == "yes" and all(value.lower() == "yes" for value in cell_values[3:7]):
-            compatible_laptops.append(cell_values)
-
-    return render_template('index.html', headers=headers, laptops=compatible_laptops)
-
-if __name__ == '__main__':
-    app.run()
-
-EOL
-
-# Create an index.html file
-mkdir templates
-cat > templates/index.html << EOL
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qubes HCL Scraper</title>
-</head>
-<body>
-    <table>
-        <thead>
-            <tr>
-                {% for header in headers %}
-                    <th>{{ header }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for laptop in laptops %}
-                <tr>
-                    <td>{{ laptop[0] }}</td>
-                    <td>{{ laptop[1] }}</td>
-                    <td>{{ laptop[2] }}</td>
-                    <td>{{ laptop[3] }}</td>
-                    <td>{{ laptop[4] }}</td>
-                    <td>{{ laptop[5] }}</td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="{{ headers|length }}">No compatible laptops found</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
-EOL
-
-# Create a systemd service file
-sudo bash -c 'cat > /etc/systemd/system/qubes_hcl_scraper.service << EOL
-[Unit]
-Description=Qubes HCL Scraper
-After=network.target
-
-[Service]
-User=$(whoami)
-WorkingDirectory=$(pwd)
-Environment="PATH=$(pwd)/venv/bin"
-ExecStart=$(pwd)/venv/bin/gunicorn app:app -b 0.0.0.0:8000
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    }
+}
 EOL'
 
-# Enable and start the service
-sudo systemctl
+# Create a symlink for the Nginx configuration
+sudo ln -s /etc/nginx/sites-available/qubes_hcl /etc/nginx/sites-enabled/qubes_hcl
+
+# Remove the default Nginx configuration
+sudo rm /etc/nginx/sites-enabled/default
+
+# Restart Nginx
+sudo systemctl restart nginx
+
+# Run the app with Gunicorn
+gunicorn --bind 127.0.0.1:8000 app:app
