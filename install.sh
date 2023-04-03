@@ -50,6 +50,7 @@ if __name__ == '__main__':
 EOL
 
 # Create an index.html file
+mkdir templates
 sudo bash -c 'cat > index.html << EOL
 <!DOCTYPE html>
 <html lang="en">
