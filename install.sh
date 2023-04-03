@@ -41,6 +41,8 @@ def qubes_hcl_scraper():
         if cell_values[2].lower() == "yes" and all(value.lower() == "yes" for value in cell_values[4:8]):
             compatible_laptops.append(cell_values)
 
+    print(compatible_laptops)  # Print the laptops list to the console
+
     return render_template('index.html', headers=headers, laptops=compatible_laptops)
 
 if __name__ == '__main__':
