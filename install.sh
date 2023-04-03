@@ -37,12 +37,11 @@ def qubes_hcl_scraper():
         cells = row.findAll('td')
         cell_values = [cell.text.strip() for cell in cells]
 
-        # Check if all features are marked "yes" or "Yes"
-        if all(value.lower() == "yes" for value in cell_values[4:8]):  # Skip the first 4 columns (vendor, model, type, and Qubes version)
-            compatible_laptops.append(cell_values[:3])
+        # Check if all features are marked "yes" or "Yes" for the latest Qubes version
+        if cell_values[3].lower() == "yes" and all(value.lower() == "yes" for value in cell_values[4:8]):
+            compatible_laptops.append(cell_values)
 
-    return render_template('index.html', headers=headers[:3], laptops=compatible_laptops)
-
+    return render_template('index.html', headers=headers, laptops=compatible_laptops)
 
 if __name__ == '__main__':
     app.run()
