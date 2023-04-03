@@ -36,7 +36,7 @@ filtered_rows = []
 
 for row in rows:
     row_data = row.find_all('td', class_='success text-center')
-    if len(row_data) == 5:
+    if len(row_data) >= 8:
         filtered_rows.append(row)
 
 header = rows[0]
@@ -61,7 +61,7 @@ def index():
 <body>
 <div class="container">
     <h1>Qubes Hardware Compatibility List</h1>
-    <p>Showing only laptops with "yes" marked in all columns.</p>
+    <p>Showing only laptops with "yes" marked in BIOS, HVM, IOMMU, SLAT, TPM, Qubes, Xen, and Kernel columns.</p>
     {{ new_table | safe }}
 </div>
 </body>
